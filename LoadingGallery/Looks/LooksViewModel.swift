@@ -18,7 +18,7 @@ final class LooksViewModel {
     private(set) var totalLooksCount: Int = 0
 
     var currentPage = 1
-    let pageSize = 3
+    let pageSize = 5
     var collectionId: Int = 1
 
     func loadInitialLooks() async {

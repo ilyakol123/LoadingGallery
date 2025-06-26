@@ -23,16 +23,18 @@ struct Look: Identifiable, Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        let idString = try container.decode(String.self, forKey: .id)
-        guard let idInt = Int(idString) else {
-            throw DecodingError.dataCorruptedError(
-                forKey: .id,
-                in: container,
-                debugDescription: "Expected string that can be converted to Int"
-            )
-        }
+        
+///use this one if id coming as a string
+//        let idString = try container.decode(String.self, forKey: .id)
+//        guard let idInt = Int(idString) else {
+//            throw DecodingError.dataCorruptedError(
+//                forKey: .id,
+//                in: container,
+//                debugDescription: "Expected string that can be converted to Int"
+//            )
+//        }
 
-        id = idInt
+        id = try container.decode(Int.self, forKey: .id)
         imageURL = try container.decode(URL.self, forKey: .imageURL)
         isBookmarked = try container.decode(Bool.self, forKey: .isBookmarked)
     }
