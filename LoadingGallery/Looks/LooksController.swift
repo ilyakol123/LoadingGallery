@@ -7,20 +7,20 @@
 
 import Foundation
 
-struct LooksResponse: Decodable {
-    let page: Int
-    let pageSize: Int
-    let total: Int
-    let looks: [Look]
-}
-
 class LooksController {
-    func getLooks(page: Int, collectionId: Int) async throws -> LooksResponse {
-        guard let url = URL(string: "https://d2d76753-e425-44ef-a689-e39fc8afbf9f.mock.pstmn.io/api/looks?page=\(page)&collectionId=\(collectionId)") else {
-            throw URLError(.badURL)
-        }
-
-        return try await APIService.shared.fetch(url: url, responseType: LooksResponse.self)
+    func getLooks(page: Int, perPage: Int) async throws -> [Look] {
+        return try await APIService.shared.request(
+            url: "https://api.unsplash.com/photos/",
+            method: .get,
+            queryItems: [
+                URLQueryItem(
+                    name: "client_id",
+                    value: "CySKRSIZR2h6VeyJjOSOVIc6JDZ_1cdVVgRAWPnpkeU"
+                ), URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "per_page", value: "\(perPage)"),
+            ],
+            responseType: [Look].self
+        )
     }
 
 }

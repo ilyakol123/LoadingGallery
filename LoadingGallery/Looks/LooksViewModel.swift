@@ -7,54 +7,88 @@
 
 import Foundation
 import Observation
+import UIKit
 
 @Observable
 final class LooksViewModel {
+
     private let controller = LooksController()
 
     private(set) var looks: [Look] = []
     private(set) var isLoading = false
     private(set) var errorMessage: String?
-    private(set) var totalLooksCount: Int = 0
+
+    enum ShowType {
+        case scroll
+        case grid
+    }
+    var showType: ShowType = .scroll
 
     var currentPage = 1
-    let pageSize = 5
-    var collectionId: Int = 1
+    let pageSize = 24
+
+    private var loadedPages: Set<Int> = []
+    private var preloadedLookIDs: Set<String> = []
 
     func loadInitialLooks() async {
         currentPage = 1
-        await loadLooks(reset: true)
+        await loadLooks()
     }
 
     func loadNextPage() async {
         currentPage += 1
-        await loadLooks(reset: false)
+        loadedPages.insert(currentPage)
+        await loadLooks()
     }
 
-    private func loadLooks(reset: Bool) async {
+    private func loadLooks() async {
         isLoading = true
         errorMessage = nil
 
         do {
-            let response = try await controller.getLooks(page: currentPage, collectionId: collectionId)
-            totalLooksCount = response.total
-            if reset {
-                looks = response.looks
-                print("Loaded Initial \(response.looks.count) looks")
-            } else {
-                looks += response.looks
-                print("Loaded \(response.looks.count) more looks")
+            var fetchedLooks = try await controller.getLooks(
+                page: currentPage,
+                perPage: pageSize
+            )
+
+            for i in fetchedLooks.indices {
+                let url = fetchedLooks[i].imageURL
+                if let data = try? Data(contentsOf: url),
+                    let uiImage = UIImage(data: data)
+                {
+                    fetchedLooks[i].image = uiImage
+                }
             }
+
+            if currentPage == 1 {
+                looks = fetchedLooks
+
+                print("Loaded looks page 1: \(fetchedLooks.count)")
+            } else {
+                looks += fetchedLooks
+                print(
+                    "Added looks to looks from page \(currentPage): \(fetchedLooks.count)"
+                )
+            }
+
         } catch {
             errorMessage = error.localizedDescription
             print("Ошибка загрузки: \(error)")
         }
-
         isLoading = false
     }
-    
-    func toggleBookmark(for lookId: Int) {
-            guard let index = looks.firstIndex(where: { $0.id == lookId }) else { return }
-            looks[index].isBookmarked.toggle()
+
+    func loadNextIfNeeded(current: Look) async {
+        print("Load next if needed called")
+        guard let index = looks.firstIndex(where: { $0.id == current.id })
+        else { return }
+
+        let thresholdIndex = looks.count - 13
+        if index == thresholdIndex && !isLoading
+            && !loadedPages.contains(currentPage + 1)
+        {
+            await loadNextPage()
         }
+    }
+
 }

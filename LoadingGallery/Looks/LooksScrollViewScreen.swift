@@ -9,44 +9,64 @@ import SwiftUI
 
 struct LooksScrollViewScreen: View {
 
-    @State var viewModel = LooksViewModel()
+    let viewModel: LooksViewModel
+    let startIndex: Int
+
+    @State private var scrollDisabled = true
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             Color.black
                 .ignoresSafeArea()
 
-            ScrollView {
-                LazyVStack {
-                    ForEach(viewModel.looks) { look in
-                        SingleLookView(
-                            look: look,
-                            lookNumber: look.id,
-                            totalNumberOfLooks: viewModel.totalLooksCount,
-                            onBookmarkToggle: {
-                                viewModel.toggleBookmark(for: look.id)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack {
+                        ForEach(viewModel.looks.indices, id: \.self) { index in
+                            let look = viewModel.looks[index]
+
+                            SingleLookView(
+                                look: look
+                            )
+                            .id(index)
+                            .task {
+                                let preloadTriggerIndex =
+                                    viewModel.looks.count - 13
+                                if index == preloadTriggerIndex {
+                                    await viewModel.loadNextIfNeeded(
+                                        current: look
+                                    )
+                                }
                             }
-                        )
-                    }
-                    if viewModel.isLoading {
-                        ProgressView()
-                    } else if viewModel.totalLooksCount > viewModel.looks.count {
-                        Button("Load more") {
-                            Task {
-                                await viewModel.loadNextPage()
-                            }
+                        }
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
                         }
                     }
                 }
+                .scrollIndicators(.hidden)
+                .scrollDisabled(scrollDisabled)
+                .onAppear {
+                    Task {
+                        viewModel.showType = .scroll
+                        if viewModel.looks.isEmpty {
+                            await viewModel.loadInitialLooks()
+                        }
+                        withAnimation(.none) {
+                            proxy.scrollTo(startIndex, anchor: .top)
+                        }
+                        scrollDisabled = false
+                    }
+                }
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .task {
-                await viewModel.loadInitialLooks()
-            }
-
         }
+        .ignoresSafeArea()
     }
 }
 
 #Preview {
-    LooksScrollViewScreen()
+    LooksScrollViewScreen(viewModel: LooksViewModel(), startIndex: 0)
 }

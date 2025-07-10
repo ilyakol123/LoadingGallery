@@ -9,76 +9,51 @@ import SwiftUI
 
 struct SingleLookView: View {
     let look: Look
-    let lookNumber: Int
-    let totalNumberOfLooks: Int
-    let onBookmarkToggle: () -> Void
     
-    @State private var retryCount = 0
+    @State private var isBookmarked: Bool = false
 
     var body: some View {
         VStack {
-            image
-            HStack {
-                Text("Look \(lookNumber) / \(totalNumberOfLooks)")
-                    .textCase(.uppercase)
-                    .foregroundStyle(.white)
-                Spacer()
-
-                bookmarkButton
-
-                moreButton
-            }
-            .padding(.vertical, 5)
+            imageView
+            actionsRow
         }
 
     }
 
-    private var image: some View {
-        AsyncImage(url: look.imageURL) { phase in
-            switch phase {
-            case .empty:
-                ProgressView()
-                    .frame(maxHeight: .infinity)
-
-            case .success(let image):
-                image
-                    .resizable()
-                    .scaledToFit()
-                    .onAppear {
-                        print("Succesfully loaded image from: \(look.imageURL)")
-                    }
-
-            case .failure:
-                        
-                Image(systemName: "photo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: .infinity)
-                    .foregroundColor(.gray)
-                    .onAppear {
-                        if retryCount < 2 {
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                            retryCount += 1
-                                            print("retryCount working \(retryCount)")
-                                        }
-                                    }
-                        print("Failed to load image from: \(look.imageURL)")
-                    }
-
-            @unknown default:
-                EmptyView()
-            }
+    @ViewBuilder
+    private var imageView: some View {
+        if let uiImage = look.image {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFit()
+        } else {
+            Image(systemName: "photo")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(.gray)
         }
-        .id(retryCount)
+    }
+    
+    private var actionsRow: some View {
+        HStack {
+            Spacer()
+
+            bookmarkButton
+
+            moreButton
+        }
+        .padding(.vertical, 5)
     }
 
     private var bookmarkButton: some View {
-        Button(action: onBookmarkToggle) {
-                    Image(systemName: look.isBookmarked ? "bookmark.fill" : "bookmark")
-                        .foregroundStyle(.gray)
-                        .font(.system(size: 24))
-                        .padding(.trailing, 5)
-                }
+        Button {
+            isBookmarked.toggle()
+        } label: {
+            Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                .foregroundStyle(.gray)
+                .font(.system(size: 24))
+                .padding(.trailing, 5)
+        }
     }
 
     private var moreButton: some View {
@@ -101,9 +76,7 @@ struct SingleLookView: View {
         Color.black.ignoresSafeArea()
 
         SingleLookView(
-            look: Look.preview,
-            lookNumber: 1,
-            totalNumberOfLooks: 40, onBookmarkToggle: {}
+            look: Look.preview
         )
     }
 

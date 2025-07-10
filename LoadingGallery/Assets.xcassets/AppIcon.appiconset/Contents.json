@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "icon-for-ios-app-photogallery-with-infinite-scroll.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

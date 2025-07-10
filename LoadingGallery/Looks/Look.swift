@@ -7,57 +7,60 @@
 
 import Foundation
 import Observation
+import UIKit
 
-struct Look: Identifiable, Decodable {
-    let id: Int
+struct Look: Identifiable, Decodable, Equatable {
+    let id: String
     let imageURL: URL
-    var isBookmarked: Bool
-    var collectionId: Int? = nil
+    var image: UIImage? = nil
 
     private enum CodingKeys: String, CodingKey {
         case id
-        case imageURL = "image_url"
-        case isBookmarked
+        case urls
     }
-    
+
+    private enum UrlsKeys: String, CodingKey {
+        case raw
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
 
-        
-///use this one if id coming as a string
-//        let idString = try container.decode(String.self, forKey: .id)
-//        guard let idInt = Int(idString) else {
-//            throw DecodingError.dataCorruptedError(
-//                forKey: .id,
-//                in: container,
-//                debugDescription: "Expected string that can be converted to Int"
-//            )
-//        }
+        let urlsContainer = try container.nestedContainer(
+            keyedBy: UrlsKeys.self,
+            forKey: .urls
+        )
+        let rawUrlString = try urlsContainer.decode(String.self, forKey: .raw)
 
-        id = try container.decode(Int.self, forKey: .id)
-        imageURL = try container.decode(URL.self, forKey: .imageURL)
-        isBookmarked = try container.decode(Bool.self, forKey: .isBookmarked)
-    }
-    
-    init(id: Int, imageURL: URL, isBookmarked: Bool, collectionId: Int? = nil) {
-            self.id = id
-            self.imageURL = imageURL
-            self.isBookmarked = isBookmarked
-            self.collectionId = collectionId
+        guard
+            let url = URL(string: rawUrlString + "&w=240&h=450&fit=crop&dpr=2")
+        else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .raw,
+                in: urlsContainer,
+                debugDescription: "Invalid URL string."
+            )
         }
-    
+
+        imageURL = url
+    }
+
+    init(id: String, imageURL: URL) {
+        self.id = id
+        self.imageURL = imageURL
+    }
+
 }
 
 #if DEBUG
-extension Look {
-    static let preview = Look(
-        id: 1,
-        imageURL: URL(string: "https://i.postimg.cc/4x0CMGsn/temp-Image0wga0r.avif")!,
-        isBookmarked: false
-    )
-}
+    extension Look {
+        static let preview = Look(
+            id: "1",
+            imageURL: URL(
+                string:
+                    "https://images.unsplash.com/photo-1749740436817-60414cc23115?ixid=M3w3NzQ0MjF8MXwxfGFsbHwxfHx8fHx8fHwxNzUxODkwODcyfA&ixlib=rb-4.1.0"
+            )!,
+        )
+    }
 #endif
-
-
-
-
