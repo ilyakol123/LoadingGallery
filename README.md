@@ -1,6 +1,6 @@
 # Loading Gallery App
 
-Gallery App implementing infinite scroll feed via Grid view and Scroll view using Unsplash API.
+Gallery App implementing infinite scroll feed via Grid view and Scroll view using [Unsplash API](https://unsplash.com/developers).
 
 ## Screenshots:
 <p align="center">
