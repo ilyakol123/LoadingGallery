@@ -24,14 +24,13 @@ final class LooksViewModel {
     }
     var showType: ShowType = .scroll
 
-    var currentPage = 1
+    var currentPage = Int.random(in: 1...1000)
     let pageSize = 24
 
     private var loadedPages: Set<Int> = []
     private var preloadedLookIDs: Set<String> = []
 
     func loadInitialLooks() async {
-        currentPage = 1
         await loadLooks()
     }
 

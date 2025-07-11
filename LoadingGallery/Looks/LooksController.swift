@@ -15,7 +15,7 @@ class LooksController {
             queryItems: [
                 URLQueryItem(
                     name: "client_id",
-                    value: "CySKRSIZR2h6VeyJjOSOVIc6JDZ_1cdVVgRAWPnpkeU"
+                    value: "***"
                 ), URLQueryItem(name: "page", value: "\(page)"),
                 URLQueryItem(name: "per_page", value: "\(perPage)"),
             ],
