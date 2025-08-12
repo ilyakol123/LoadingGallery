@@ -1,5 +1,5 @@
 //
-//  APIService.swift
+//  HTTPService.swift
 //  LoadingGallery
 //
 //  Created by Илья Колесников on 25.06.2025.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-class APIService {
-    static let shared = APIService()
+class HTTPService {
+    static let shared = HTTPService()
 
     enum APIError: Error {
         case invalidURL

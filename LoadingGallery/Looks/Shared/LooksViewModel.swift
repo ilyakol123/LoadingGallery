@@ -23,27 +23,36 @@ final class LooksViewModel {
         case grid
     }
     var showType: ShowType = .scroll
-
     var currentPage = Int.random(in: 1...1000)
-    let pageSize = 24
 
+    private let pageSize = 24
     private var loadedPages: Set<Int> = []
-    private var preloadedLookIDs: Set<String> = []
+    var selectedIndex: Int = 0
 
-    func loadInitialLooks() async {
-        await loadLooks()
+    func onAppear() async {
+        print("Start initial loading")
+        await onScroll()
+        print("Inital loading finished")
     }
 
-    func loadNextPage() async {
-        currentPage += 1
-        loadedPages.insert(currentPage)
-        await loadLooks()
+    func loadMoreLooksFrom(current: Look) async {
+        
+        guard let index = looks.firstIndex(where: { $0.id == current.id })
+        else { return }
+        
+        let thresholdIndex = looks.count - 13
+        if index == thresholdIndex && !isLoading
+            && !loadedPages.contains(currentPage + 1)
+        {
+            print("Reached look to load more - current index = \(index)")
+            await loadNextPage()
+        }
     }
 
-    private func loadLooks() async {
+    private func onScroll() async {
+        print("Start loading looks page \(currentPage)")
         isLoading = true
         errorMessage = nil
-
         do {
             var fetchedLooks = try await controller.getLooks(
                 page: currentPage,
@@ -66,7 +75,7 @@ final class LooksViewModel {
             } else {
                 looks += fetchedLooks
                 print(
-                    "Added looks to looks from page \(currentPage): \(fetchedLooks.count)"
+                    "From page \(currentPage): loaded looks = \(fetchedLooks.count)"
                 )
             }
 
@@ -77,17 +86,11 @@ final class LooksViewModel {
         isLoading = false
     }
 
-    func loadNextIfNeeded(current: Look) async {
-        print("Load next if needed called")
-        guard let index = looks.firstIndex(where: { $0.id == current.id })
-        else { return }
-
-        let thresholdIndex = looks.count - 13
-        if index == thresholdIndex && !isLoading
-            && !loadedPages.contains(currentPage + 1)
-        {
-            await loadNextPage()
-        }
+    private func loadNextPage() async {
+        print("Started loading next page - \(currentPage + 1)")
+        currentPage += 1
+        loadedPages.insert(currentPage)
+        await onScroll()
     }
 
 }

@@ -9,13 +9,13 @@ import Foundation
 
 class LooksController {
     func getLooks(page: Int, perPage: Int) async throws -> [Look] {
-        return try await APIService.shared.request(
+        return try await HTTPService.shared.request(
             url: "https://api.unsplash.com/photos/",
             method: .get,
             queryItems: [
                 URLQueryItem(
                     name: "client_id",
-                    value: "***"
+                    value: "XMHvdsBfJbDigNmH53iLyPVY6cOyMKXxtVgubtsnFW8"
                 ), URLQueryItem(name: "page", value: "\(page)"),
                 URLQueryItem(name: "per_page", value: "\(perPage)"),
             ],

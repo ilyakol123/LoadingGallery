@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct LooksGridViewScreen: View {
+    var onImageTap: (Int) -> Void
 
-    @State private var viewModel = LooksViewModel()
+    var viewModel: LooksViewModel
+    
     let columns = [
         GridItem(.flexible(), alignment: .bottom),
         GridItem(.flexible(), alignment: .bottom),
@@ -17,7 +19,6 @@ struct LooksGridViewScreen: View {
     ]
 
     var body: some View {
-        NavigationStack {
             ZStack {
                 Color.black
                     .ignoresSafeArea()
@@ -34,17 +35,10 @@ struct LooksGridViewScreen: View {
                 .task {
                     viewModel.showType = .grid
                     if viewModel.looks.isEmpty {
-                        await viewModel.loadInitialLooks()
+                        await viewModel.onAppear()
                     }
                 }
-                .navigationDestination(for: Int.self) { index in
-                    LooksScrollViewScreen(
-                        viewModel: viewModel,
-                        startIndex: index
-                    )
-                }
             }
-        }
     }
 
     private var gridView: some View {
@@ -52,14 +46,15 @@ struct LooksGridViewScreen: View {
             ForEach(viewModel.looks.indices, id: \.self) { index in
                 let look = viewModel.looks[index]
 
-                NavigationLink(value: index) {
+                Button {
+                    onImageTap(index)
+                } label: {
                     GridViewCell(look: look)
                         .task(id: look.id) {
-
                             let preloadTriggerIndex =
                                 viewModel.looks.count - 13
                             if index == preloadTriggerIndex {
-                                await viewModel.loadNextIfNeeded(
+                                await viewModel.loadMoreLooksFrom(
                                     current: look
                                 )
                             }
@@ -71,5 +66,5 @@ struct LooksGridViewScreen: View {
 }
 
 #Preview {
-    LooksGridViewScreen()
+    LooksGridViewScreen(onImageTap: { _ in print("Tapped")}, viewModel: LooksViewModel())
 }
