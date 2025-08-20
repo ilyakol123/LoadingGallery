@@ -129,5 +129,8 @@ In `LooksScrollViewScreen`, a **ScrollViewReader** is used to scroll to the prev
 - add search for pictures
 - redesign toolbar in scroll View
 
+## Stack:
+SwiftUI | MVVM | Router + Coordinator | Swift Concurrency
+
 ## Author
 [GitHub](https://github.com/ilyakol123)
