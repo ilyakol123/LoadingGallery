@@ -9,7 +9,9 @@ Gallery App implementing infinite scroll feed via Grid view and Scroll
   <img src="https://i.giphy.com/52t1NMsyJV0cqVWs1r.webp" width="33%">
 </p>
 
+## Use cases:
 
+As a user I want to see random loaded pictures as a grid and as a list, and can scroll it infinitely.
 
 ## Technical Features:
 ### 📸 Loading Images
