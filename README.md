@@ -4,8 +4,8 @@ Gallery App implementing infinite scroll feed via Grid view and Scroll
 
 ## Preview:
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7e57c14c-b710-4a19-88df-0345f601fc9a" width="33%">
-  <img src="https://github.com/user-attachments/assets/a8fbaa3f-1256-47b9-a338-d7464a587d88" width="33%">
+  <img src="https://github.com/user-attachments/assets/e928f0e7-5227-49bf-b53b-08ffabd69224" width="33%">
+  <img src="https://github.com/user-attachments/assets/bd2749e9-8061-47cf-aeef-a0ff0a76ed4b" width="33%">
   <img src="https://i.giphy.com/52t1NMsyJV0cqVWs1r.webp" width="33%">
 </p>
 
